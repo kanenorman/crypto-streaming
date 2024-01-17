@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def _get_producer_configurations() -> Dict[str, str]:
     return {
         "bootstrap.servers": "localhost:9092",
-        "client.id": "bitcoin-price-producer",
+        "client.id": "crypto-price-producer",
     }
 
 
