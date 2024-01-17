@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 from typing import Dict
@@ -22,11 +23,26 @@ async def _create_kafka_producer() -> Producer:
     return Producer(producer_configurations)
 
 
+async def _send_record_to_kafka(record, producer):
+    try:
+        producer.produce(topic="crypto-prices", value=json.dumps(record))
+        producer.flush()
+    except KafkaException as e:
+        logger.error(f"Error producing message to Kafka: {e}")
+
+
 async def _on_message(message: str, producer: Producer) -> None:
     logger.info("Received message: %s", message)
     try:
-        producer.produce(topic="crypto-prices", value=message)
-        producer.flush()
+        data = json.loads(message)
+        if data.get("type") == "trade":
+            records = data.get("data")
+            if records:
+                tasks = (
+                    asyncio.ensure_future(_send_record_to_kafka(record, producer))
+                    for record in records
+                )
+                await asyncio.gather(*tasks)
     except KafkaException as e:
         logger.error(f"Error producing message to Kafka: {e}")
 
