@@ -46,7 +46,7 @@ async def main() -> None:
         return
 
     websocket_url = f"wss://ws.finnhub.io?token={api_key}"
-    symbols_to_subscribe = ["BINANCE:BTCUSDT", "BINANCE:ETHUSDT"]
+    symbols_to_subscribe = ["BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:DOGEUSDT"]
     kafka_producer = await _create_kafka_producer()
 
     async with websockets.connect(websocket_url) as websocket:
