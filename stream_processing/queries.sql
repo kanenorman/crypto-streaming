@@ -6,7 +6,6 @@ AND CREATES A SOURCE TABLE WITH THE DATA
 FROM THE TOPIC
 *********************************/
 
--- Create a Kafka source table (CRYPTO_PRICES_BRONZE)
 CREATE TABLE CRYPTO_PRICES_BRONZE (
   c STRING,              -- Trade conditions
   p DECIMAL(18, 2),      -- Last price
