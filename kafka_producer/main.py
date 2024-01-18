@@ -6,7 +6,8 @@ from typing import Dict
 
 import websockets
 from confluent_kafka import KafkaException, Producer
-from tenacity import retry, stop_after_attempt, wait_fixed
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_random
+from websockets.exceptions import WebSocketException
 
 logger = logging.getLogger(__name__)
 
@@ -33,21 +34,23 @@ async def _send_record_to_kafka(record, producer):
 
 async def _on_message(message: str, producer: Producer) -> None:
     logger.info("Received message: %s", message)
-    try:
-        data = json.loads(message)
-        if data.get("type") == "trade":
-            records = data.get("data")
-            if records:
-                tasks = (
-                    asyncio.ensure_future(_send_record_to_kafka(record, producer))
-                    for record in records
-                )
-                await asyncio.gather(*tasks)
-    except KafkaException as e:
-        logger.error(f"Error producing message to Kafka: {e}")
+    data = json.loads(message)
+
+    if data.get("type") == "trade":
+        records = data.get("data")
+        if records:
+            tasks = (
+                asyncio.ensure_future(_send_record_to_kafka(record, producer))
+                for record in records
+            )
+            await asyncio.gather(*tasks)
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(5))
+@retry(
+    retry=retry_if_exception_type(WebSocketException),
+    stop=stop_after_attempt(3),
+    wait=wait_random(min=5, max=7),
+)
 async def _subscribe_to_symbol(
     websocket: websockets.WebSocketClientProtocol, symbol: str
 ) -> None:
