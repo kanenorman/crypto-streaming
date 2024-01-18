@@ -11,7 +11,13 @@ services:
       ZOOKEEPER_CLIENT_PORT: "2081"
       ZOOKEEPER_TICK_TIME: 2000
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo 'ruok' | nc zookeeper 2081"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "echo 'ruok' | nc zookeeper 2081"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,9 +38,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z broker1 9092"]
+      test: [ "CMD", "bash", "-c", "nc -z broker1 9092" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,9 +62,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z broker2 19092"]
+      test: [ "CMD", "bash", "-c", "nc -z broker2 19092" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,9 +86,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "nc -z broker3 29092"]
+      test: [ "CMD", "bash", "-c", "nc -z broker3 29092" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,9 +98,12 @@ services:
     hostname: control-center
     container_name: control-center
     depends_on:
-      - broker1
-      - broker2
-      - broker3
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
     ports:
       - "9021:9021"
     restart: always
@@ -117,8 +129,66 @@ services:
       PYTHONUNBUFFERED: 1
       FINNHUB_API_KEY: "${FINNHUB_API_KEY}"
     depends_on:
-      - broker1
-      - broker2
-      - broker3
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+  jobmanager:
+    build:
+      context: .
+      dockerfile: ./stream_processing/Dockerfile
+    networks:
+      - network
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+  taskmanager:
+    build:
+      context: .
+      dockerfile: ./stream_processing/Dockerfile
+    networks:
+      - network
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2   
+  flink-sql:
+    build:
+      context: .
+      dockerfile: ./stream_processing/Dockerfile
+    container_name: flink-sql
+    command: bin/sql-client.sh
+    networks:
+      - network
+    depends_on:
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
+      producer:
+        condition: service_started
+      jobmanager:
+        condition: service_started
+    environment:
+      - FACTOR=3
+      - | 
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager 
+    stdin_open: true
+    tty: true
 networks:
   network:
