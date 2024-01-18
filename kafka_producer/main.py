@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def _get_producer_configurations() -> Dict[str, str]:
     return {
-        "bootstrap.servers": "localhost:9092",
+        "bootstrap.servers": "broker1:9092,broker2:19092,broker3:29092",
         "client.id": "crypto-price-producer",
     }
 
