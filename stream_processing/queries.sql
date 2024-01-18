@@ -1,10 +1,9 @@
 /*********************************
-  CREATE A KAFKA SOURCE TABLE
+CREATE A KAFKA SOURCE TABLE
 
-  READS KAFKA TOPIC `crypto-prices`
-  AND CREATES A SOURCE TABLE WITH THE DATA
-  FROM THE TOPIC
-
+READS KAFKA TOPIC `crypto-prices`
+AND CREATES A SOURCE TABLE WITH THE DATA
+FROM THE TOPIC
 *********************************/
 
 -- Create a Kafka source table (CRYPTO_PRICES_BRONZE)
@@ -13,7 +12,7 @@ CREATE TABLE CRYPTO_PRICES_BRONZE (
   p DECIMAL(18, 2),      -- Last price
   s STRING,              -- Symbol
   t BIGINT,              -- UNIX timestamp in milliseconds
-  v DOUBLE      -- Volume
+  v DOUBLE               -- Volume
 ) WITH (
   'connector' = 'kafka',
   'topic' = 'crypto-prices',
@@ -24,10 +23,10 @@ CREATE TABLE CRYPTO_PRICES_BRONZE (
 );
 
 /*********************************
-  CREATE A VIEW FOR TRANSFORMED DATA
+CREATE A VIEW FOR TRANSFORMED DATA
 
-  READS DATA FROM CRYPTO_PRICES_BRONZE TABLE
-  AND CREATES A VIEW WITH TRANSFORMED COLUMNS
+READS DATA FROM CRYPTO_PRICES_BRONZE TABLE
+AND CREATES A VIEW WITH TRANSFORMED COLUMNS
 **********************************/
 
 CREATE VIEW CRYPTO_PRICES_SILVER  AS
