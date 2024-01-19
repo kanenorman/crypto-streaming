@@ -170,7 +170,7 @@ services:
       context: .
       dockerfile: ./stream_processing/Dockerfile
     container_name: flink-sql
-    command: bin/sql-client.sh
+    command: bin/sql-client.sh -f /opt/queries.sql
     networks:
       - network
     depends_on:
@@ -190,7 +190,6 @@ services:
       - ZOOKEEPER_CONNECT=zookeeper
       - KAFKA_BOOTSTRAP=kafka
       - MYSQL_HOST=mysql
-      - ES_HOST=elasticsearch
       - FACTOR=3
       - |
         FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager

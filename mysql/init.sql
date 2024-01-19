@@ -36,8 +36,17 @@ CREATE TABLE IF NOT EXISTS crypto.price_history
 (
     conditions VARCHAR(255),
     price DECIMAL(18, 2),
-    symbol VARCHAR(255),
+    exchange VARCHAR(255),
+    trading_pair VARCHAR(255),
     at_time TIMESTAMP,
     volume DOUBLE,
-    PRIMARY KEY (symbol, at_time)
+    PRIMARY KEY (exchange, trading_pair, at_time)
+);
+
+CREATE TABLE IF NOT EXISTS crypto.average_price
+(
+    exchange VARCHAR(255),
+    trading_pair VARCHAR(255),
+    average_price DOUBLE,
+    PRIMARY KEY (exchange, trading_pair)
 );

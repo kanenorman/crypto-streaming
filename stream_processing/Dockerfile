@@ -7,5 +7,3 @@ RUN apt-get update && apt-get install -y wget && \
     https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.19/mysql-connector-java-8.0.19.jar;
 
 COPY /stream_processing/queries.sql /opt/queries.sql
-
-
