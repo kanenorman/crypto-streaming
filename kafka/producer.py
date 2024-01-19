@@ -40,7 +40,7 @@ async def _create_kafka_producer() -> Producer:
     return Producer(producer_configurations)
 
 
-async def _send_record_to_kafka(record: str, producer: Producer):
+async def _send_record_to_kafka(record: str, producer: Producer) -> None:
     """
     Send a record to Kafka.
 
@@ -50,6 +50,10 @@ async def _send_record_to_kafka(record: str, producer: Producer):
         The record to be sent to Kafka.
     producer : Producer
         The Kafka producer instance.
+
+    Returns
+    -------
+    None
     """
     try:
         producer.produce(topic="crypto-prices", value=json.dumps(record))
@@ -68,6 +72,10 @@ async def _on_message(message: str, producer: Producer) -> None:
         The incoming WebSocket message.
     producer : Producer
         The Kafka producer instance used to send data to Kafka.
+
+    Returns
+    -------
+    None
     """
     logger.info("Received message: %s", message)
     data = json.loads(message)
@@ -99,6 +107,10 @@ async def _subscribe_to_symbol(
         The WebSocket connection.
     symbol : str
         The symbol to subscribe to.
+
+    Returns
+    -------
+    None
     """
     logger.info(f"Subscribing to symbol: {symbol}")
     await websocket.send(f'{{"type":"subscribe","symbol":"{symbol}"}}')
