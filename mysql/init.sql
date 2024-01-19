@@ -23,13 +23,10 @@ Notes:
 
 GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
 
-
 /************************************************************
                     DATABASE CREATION
 ************************************************************/
 CREATE DATABASE IF NOT EXISTS crypto;
-
-
 
 /************************************************************
                     DATABASE TABLES
