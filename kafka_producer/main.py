@@ -13,6 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 def _get_producer_configurations() -> Dict[str, str]:
+    """
+    Get the Kafka producer configurations.
+
+    Returns
+    -------
+    Dict[str, str]
+        A dictionary containing Kafka producer configuration settings.
+    """
     return {
         "bootstrap.servers": "broker1:9092,broker2:19092,broker3:29092",
         "client.id": "crypto-price-producer",
@@ -20,11 +28,29 @@ def _get_producer_configurations() -> Dict[str, str]:
 
 
 async def _create_kafka_producer() -> Producer:
+    """
+    Create a Kafka producer instance.
+
+    Returns
+    -------
+    Producer
+        A Kafka producer instance.
+    """
     producer_configurations = _get_producer_configurations()
     return Producer(producer_configurations)
 
 
 async def _send_record_to_kafka(record, producer):
+    """
+    Send a record to Kafka.
+
+    Parameters
+    ----------
+    record : Any
+        The record to be sent to Kafka.
+    producer : Producer
+        The Kafka producer instance.
+    """
     try:
         producer.produce(topic="crypto-prices", value=json.dumps(record))
         producer.flush()
@@ -33,6 +59,16 @@ async def _send_record_to_kafka(record, producer):
 
 
 async def _on_message(message: str, producer: Producer) -> None:
+    """
+    Handle incoming WebSocket messages.
+
+    Parameters
+    ----------
+    message : str
+        The incoming WebSocket message.
+    producer : Producer
+        The Kafka producer instance used to send data to Kafka.
+    """
     logger.info("Received message: %s", message)
     data = json.loads(message)
 
@@ -54,11 +90,29 @@ async def _on_message(message: str, producer: Producer) -> None:
 async def _subscribe_to_symbol(
     websocket: websockets.WebSocketClientProtocol, symbol: str
 ) -> None:
+    """
+    Subscribe to a specific symbol on the WebSocket.
+
+    Parameters
+    ----------
+    websocket : websockets.WebSocketClientProtocol
+        The WebSocket connection.
+    symbol : str
+        The symbol to subscribe to.
+    """
     logger.info(f"Subscribing to symbol: {symbol}")
     await websocket.send(f'{{"type":"subscribe","symbol":"{symbol}"}}')
 
 
 async def main() -> None:
+    """
+    Main function to set up the WebSocket connection, subscribe to symbols,
+    and handle incoming messages.
+
+    Returns
+    -------
+    None
+    """
     api_key = os.environ.get("FINNHUB_API_KEY")
     if not api_key:
         logger.error("FINNHUB_API_KEY not set in environment variables.")
