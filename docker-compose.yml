@@ -124,7 +124,7 @@ services:
       - "5950:5950"
     build:
       context: .
-      dockerfile: ./kafka_producer/Dockerfile
+      dockerfile: ./kafka/Dockerfile
     environment:
       PYTHONUNBUFFERED: 1
       FINNHUB_API_KEY: "${FINNHUB_API_KEY}"
@@ -140,7 +140,7 @@ services:
   jobmanager:
     build:
       context: .
-      dockerfile: ./stream_processing/Dockerfile
+      dockerfile: ./flink/Dockerfile
     networks:
       - network
     ports:
@@ -153,7 +153,7 @@ services:
   taskmanager:
     build:
       context: .
-      dockerfile: ./stream_processing/Dockerfile
+      dockerfile: ./flink/Dockerfile
     networks:
       - network
     depends_on:
@@ -168,7 +168,7 @@ services:
   flink-sql:
     build:
       context: .
-      dockerfile: ./stream_processing/Dockerfile
+      dockerfile: ./flink/Dockerfile
     container_name: flink-sql
     command: bin/sql-client.sh -f /opt/queries.sql
     networks:

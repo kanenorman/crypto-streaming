@@ -6,4 +6,4 @@ RUN apt-get update && apt-get install -y wget && \
     https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-jdbc/3.1.1-1.17/flink-connector-jdbc-3.1.1-1.17.jar  \
     https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.19/mysql-connector-java-8.0.19.jar;
 
-COPY /stream_processing/queries.sql /opt/queries.sql
+COPY /flink/queries.sql /opt/queries.sql

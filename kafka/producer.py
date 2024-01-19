@@ -40,13 +40,13 @@ async def _create_kafka_producer() -> Producer:
     return Producer(producer_configurations)
 
 
-async def _send_record_to_kafka(record, producer):
+async def _send_record_to_kafka(record: str, producer: Producer):
     """
     Send a record to Kafka.
 
     Parameters
     ----------
-    record : Any
+    record : str
         The record to be sent to Kafka.
     producer : Producer
         The Kafka producer instance.
