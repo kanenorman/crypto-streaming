@@ -1,10 +1,6 @@
-/*********************************
-CREATE A KAFKA SOURCE TABLE
-
-READS KAFKA TOPIC `crypto-prices`
-AND CREATES A SOURCE TABLE WITH THE DATA
-FROM THE TOPIC
-*********************************/
+/*****************************************************
+                KAFKA SOURCE TABLES
+*****************************************************/
 
 CREATE TABLE CRYPTO_PRICES_BRONZE (
   c STRING,              -- Trade conditions
@@ -21,12 +17,9 @@ CREATE TABLE CRYPTO_PRICES_BRONZE (
   'format' = 'json'
 );
 
-/*********************************
-CREATE A VIEW FOR TRANSFORMED DATA
-
-READS DATA FROM CRYPTO_PRICES_BRONZE TABLE
-AND CREATES A VIEW WITH TRANSFORMED COLUMNS
-**********************************/
+/*****************************************************
+                  TRANSFORMED DATA
+*****************************************************/
 
 CREATE VIEW CRYPTO_PRICES_SILVER  AS
 SELECT
@@ -36,3 +29,41 @@ SELECT
   TO_TIMESTAMP_LTZ(t, 3) AS at_time,  -- Local timestamp with millisecond precision
   v AS volume                         -- Volume
 FROM CRYPTO_PRICES_BRONZE;
+
+
+
+
+/*****************************************************
+                 MYSQL SINK TABLES
+*****************************************************/
+
+CREATE TABLE MYSQL_PRICE_HISTORY_SINK (
+    conditions VARCHAR(255),
+    price DECIMAL(18, 2),
+    symbol VARCHAR(255),
+    at_time TIMESTAMP(6),
+    volume DOUBLE PRECISION,
+    PRIMARY KEY (symbol, at_time) NOT ENFORCED
+) WITH (
+    'connector' = 'jdbc',
+    'url' = 'jdbc:mysql://mysql:3306/crypto',
+    'table-name' = 'price_history',
+    'username' = 'user',
+    'password' = 'password',
+    'lookup.cache.max-rows' = '5000',
+    'lookup.cache.ttl' = '10min'
+);
+
+
+/*****************************************************
+    INSERT TRANSFORMED DATA INTO MYSQL SINK TABLES
+*****************************************************/
+
+INSERT INTO MYSQL_PRICE_HISTORY_SINK
+SELECT
+    conditions,
+    price,
+    symbol,
+    at_time,
+    volume
+FROM CRYPTO_PRICES_SILVER;

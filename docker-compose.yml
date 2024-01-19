@@ -135,6 +135,8 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
+      mysql:
+        condition: service_healthy
   jobmanager:
     build:
       context: .
@@ -178,17 +180,40 @@ services:
         condition: service_healthy
       broker3:
         condition: service_healthy
+      mysql:
+        condition: service_healthy
       producer:
         condition: service_started
       jobmanager:
         condition: service_started
     environment:
+      - ZOOKEEPER_CONNECT=zookeeper
+      - KAFKA_BOOTSTRAP=kafka
+      - MYSQL_HOST=mysql
+      - ES_HOST=elasticsearch
       - FACTOR=3
-      - | 
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-        rest.address: jobmanager 
+      - |
+        FLINK_PROPERTIES=jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
     stdin_open: true
     tty: true
+  mysql:
+    container_name: mysql
+    build:
+      context: .
+      dockerfile: ./mysql/Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_USER=${MYSQL_ROOT_USER}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DB=crypto
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${MYSQL_ROOT_USER} -p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - network
 networks:
   network:
