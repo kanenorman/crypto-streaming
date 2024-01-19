@@ -30,9 +30,6 @@ SELECT
   v AS volume                         -- Volume
 FROM CRYPTO_PRICES_BRONZE;
 
-
-
-
 /*****************************************************
                  MYSQL SINK TABLES
 *****************************************************/
@@ -53,7 +50,6 @@ CREATE TABLE MYSQL_PRICE_HISTORY_SINK (
     'lookup.cache.max-rows' = '5000',
     'lookup.cache.ttl' = '10min'
 );
-
 
 /*****************************************************
     INSERT TRANSFORMED DATA INTO MYSQL SINK TABLES
