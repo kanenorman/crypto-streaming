@@ -1,5 +1,5 @@
 /*****************************************************
-                KAFKA SOURCE TABLES
+|               KAFKA SOURCE TABLES                  |
 *****************************************************/
 
 CREATE TABLE SOURCE_CRYPTO_PRICES (
@@ -20,7 +20,7 @@ CREATE TABLE SOURCE_CRYPTO_PRICES (
 );
 
 /*****************************************************
-                  TRANSFORMED DATA
+|                 TRANSFORMED DATA                   |
 *****************************************************/
 
 CREATE VIEW TRANSFORMED_CRYPTO_PRICES  AS
@@ -33,7 +33,7 @@ SELECT
 FROM SOURCE_CRYPTO_PRICES;
 
 /*****************************************************
-                 MYSQL SINK TABLES
+|                MYSQL SINK TABLES                   |
 *****************************************************/
 
 CREATE TABLE CRYPTO_PRICES_HISTORY_SINK (
@@ -69,7 +69,7 @@ CREATE TABLE CRYPTO_PRICES_AVERAGE_SINK (
 );
 
 /*****************************************************
-    INSERT TRANSFORMED DATA INTO MYSQL SINK TABLES
+|   INSERT TRANSFORMED DATA INTO MYSQL SINK TABLES   |
 *****************************************************/
 
 INSERT INTO CRYPTO_PRICES_HISTORY_SINK
