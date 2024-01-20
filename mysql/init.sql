@@ -20,7 +20,6 @@ Notes:
 /************************************************************
                           PRIVILEGES
 ************************************************************/
-
 GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
 
 /************************************************************
@@ -34,7 +33,6 @@ CREATE DATABASE IF NOT EXISTS crypto;
 
 CREATE TABLE IF NOT EXISTS crypto.price_history
 (
-    conditions VARCHAR(255),
     price DECIMAL(18, 2),
     exchange VARCHAR(255),
     trading_pair VARCHAR(255),

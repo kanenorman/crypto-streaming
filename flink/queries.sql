@@ -25,7 +25,6 @@ CREATE TABLE SOURCE_CRYPTO_PRICES (
 
 CREATE VIEW TRANSFORMED_CRYPTO_PRICES  AS
 SELECT
-  c AS conditions,                          -- Trade conditions
   p AS price,                               -- Last price       
   SPLIT_INDEX(s, ':',0) AS exchange,        -- Trading exchange (e.g. Coinbase)
   SPLIT_INDEX(s, ':',1) AS trading_pair,    -- Trading pair     (e.g. BTCUSD)
@@ -38,7 +37,6 @@ FROM SOURCE_CRYPTO_PRICES;
 *****************************************************/
 
 CREATE TABLE CRYPTO_PRICES_HISTORY_SINK (
-    conditions VARCHAR(255),
     price DECIMAL(18, 2),
     exchange VARCHAR(255),
     trading_pair VARCHAR(255),
@@ -76,7 +74,6 @@ CREATE TABLE CRYPTO_PRICES_AVERAGE_SINK (
 
 INSERT INTO CRYPTO_PRICES_HISTORY_SINK
 SELECT
-    conditions,
     price,
     exchange,
     trading_pair,
