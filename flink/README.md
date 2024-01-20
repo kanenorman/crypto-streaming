@@ -1,6 +1,6 @@
 # Apache Flink
 
-## Kafka to MySQL Data Pipeline README
+## Kafka to MySQL Data Pipeline
 
 This README provides an overview of the data pipeline that ingests cryptocurrency price data from a Kafka source and transforms it before storing it in MySQL sink tables.
 
@@ -12,7 +12,7 @@ The `SOURCE_CRYPTO_PRICES` table represents the raw cryptocurrency price data ob
 
 - `c`: Trade conditions.
 - `p`: Last price (decimal with 18, 2 precision).
-- `s`: Symbol.
+- `s`: Symbol. (Provided in format exchange:trading_pair)
 - `t`: UNIX milliseconds timestamp (ms since 1970-01-01 00:00:00.000 UTC).
 - `at_time`: Local timestamp with millisecond precision derived from `t`.
 - `v`: Volume.
