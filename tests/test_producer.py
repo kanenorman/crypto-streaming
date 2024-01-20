@@ -1,5 +1,4 @@
 import json
-from inspect import walktree
 from unittest.mock import AsyncMock, Mock, call, patch
 
 import pytest
