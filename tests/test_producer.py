@@ -1,5 +1,5 @@
 import json
-from unittest.mock import AsyncMock, Mock, call, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from confluent_kafka import KafkaException, Producer
@@ -23,6 +23,22 @@ def producer_config():
     return service._get_producer_configurations()
 
 
+@pytest.fixture
+def mock_logger():
+    with patch("kafka.producer.logger") as mock_logger:
+        yield mock_logger
+
+
+@pytest.fixture
+def mock_get_producer_configurations():
+    with patch("kafka.producer._get_producer_configurations") as mock_config:
+        mock_config.return_value = {
+            "bootstrap.servers": "mock_servers",
+            "client.id": "mock_id",
+        }
+        yield mock_config
+
+
 def test_get_producer_configurations_is_dict(producer_config):
     assert_that(producer_config, instance_of(dict))
 
@@ -41,15 +57,9 @@ def test_get_producer_configurations_values(producer_config):
 
 
 @pytest.mark.asyncio
-async def test_create_kafka_producer():
-    mock_get_producer_configurations = Mock(
-        return_value={"bootstrap.servers": "mock_servers", "client.id": "mock_id"}
-    )
-    with patch(
-        "kafka.producer._get_producer_configurations", mock_get_producer_configurations
-    ):
-        producer = await service._create_kafka_producer()
-        assert_that(producer, instance_of(Producer))
+async def test_create_kafka_producer(mock_get_producer_configurations):
+    producer = await service._create_kafka_producer()
+    assert_that(producer, instance_of(Producer))
     mock_get_producer_configurations.assert_called_once()
 
 
@@ -57,57 +67,39 @@ async def test_create_kafka_producer():
 async def test_send_record_to_kafka(sample_record, mock_producer):
     await service._send_record_to_kafka(sample_record, mock_producer)
     mock_producer.produce.assert_called_once_with(
-        topic="crypto-prices", value='{"spam": "eggs"}'
+        topic="crypto-prices", value=json.dumps(sample_record)
     )
     mock_producer.flush.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_send_record_to_kafka_error_handling(sample_record):
-    with patch("kafka.producer.logger") as mock_logger:
-        mock_producer = Mock()
-        mock_producer.produce.side_effect = KafkaException("Test KafkaException")
-        await service._send_record_to_kafka(sample_record, mock_producer)
-        mock_producer.produce.assert_called_once_with(
-            topic="crypto-prices", value='{"spam": "eggs"}'
-        )
-        mock_logger.error.assert_called_once_with(
-            "Error producing message to Kafka: Test KafkaException"
-        )
+async def test_send_record_to_kafka_error_handling(
+    sample_record, mock_producer, mock_logger
+):
+    mock_producer.produce.side_effect = KafkaException("Test KafkaException")
+    await service._send_record_to_kafka(sample_record, mock_producer)
+    mock_producer.produce.assert_called_once_with(
+        topic="crypto-prices", value=json.dumps(sample_record)
+    )
+    mock_logger.error.assert_called_once_with(
+        "Error producing message to Kafka: Test KafkaException"
+    )
 
 
+@pytest.mark.parametrize(
+    "message_type, expected_call_count", [("trade", 2), ("non-trade", 0)]
+)
 @pytest.mark.asyncio
-async def test_on_message_with_trade_type():
+async def test_on_message(message_type, expected_call_count, mock_logger):
     mock_producer = Producer({"bootstrap.servers": "dummy"})
     mock_send_record = AsyncMock()
 
-    message = json.dumps({"type": "trade", "data": [{"spam": "eggs"}, {"foo": "bar"}]})
-
-    with patch("kafka.producer.logger") as mock_logger, patch(
-        "kafka.producer._send_record_to_kafka", mock_send_record
-    ):
-        await service._on_message(message, mock_producer)
-
-    mock_logger.info.assert_called_with("Received message: %s", message)
-
-    assert_that(mock_send_record.call_count, equal_to(2))
-    mock_send_record.assert_any_call({"spam": "eggs"}, mock_producer)
-    mock_send_record.assert_any_call({"foo": "bar"}, mock_producer)
-
-
-@pytest.mark.asyncio
-async def test_on_message_with_non_trade_type():
-    mock_producer = Mock()
-    mock_send_record = AsyncMock()
-
     message = json.dumps(
-        {"type": "non-trade", "data": [{"spam": "eggs"}, {"foo": "bar"}]}
+        {"type": message_type, "data": [{"spam": "eggs"}, {"foo": "bar"}]}
     )
 
-    with patch("kafka.producer.logger") as mock_logger, patch(
-        "kafka.producer._send_record_to_kafka", mock_send_record
-    ):
+    with patch("kafka.producer._send_record_to_kafka", mock_send_record):
         await service._on_message(message, mock_producer)
 
     mock_logger.info.assert_called_with("Received message: %s", message)
-    mock_send_record.assert_not_called()
+    assert_that(mock_send_record.call_count, equal_to(expected_call_count))
