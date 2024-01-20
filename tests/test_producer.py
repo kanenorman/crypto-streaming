@@ -1,11 +1,13 @@
 import json
-from unittest.mock import AsyncMock, Mock, patch
+from inspect import walktree
+from unittest.mock import AsyncMock, Mock, call, patch
 
 import pytest
 from confluent_kafka import KafkaException, Producer
 from hamcrest import assert_that, equal_to, has_key, instance_of
 
 from kafka import producer as service
+from kafka.producer import WebSocketException
 
 
 @pytest.fixture
@@ -103,3 +105,38 @@ async def test_on_message(message_type, expected_call_count, mock_logger):
 
     mock_logger.info.assert_called_with("Received message: %s", message)
     assert_that(mock_send_record.call_count, equal_to(expected_call_count))
+
+
+@pytest.mark.asyncio
+async def test_subscribe_to_symbol_success():
+    mock_websocket = AsyncMock()
+    symbol = "BTCUSD"
+
+    with patch("kafka.producer.logger") as mock_logger:
+        await service._subscribe_to_symbol(mock_websocket, symbol)
+
+    mock_logger.info.assert_called_with(f"Subscribing to symbol: {symbol}")
+    mock_websocket.send.assert_awaited_once_with(
+        f'{{"type":"subscribe","symbol":"{symbol}"}}'
+    )
+
+
+@pytest.mark.asyncio
+async def test_subscribe_to_symbol_with_retries():
+    mock_websocket = AsyncMock()
+    mock_websocket.send.side_effect = [WebSocketException("Connection error"), None]
+    symbol = "BTCUSD"
+
+    with patch("kafka.producer.logger") as mock_logger:
+        await service._subscribe_to_symbol(mock_websocket, symbol)
+
+    # assert the logger was called twice - once for each attempt
+    assert_that(mock_logger.info.call_count, equal_to(2))
+
+    # assert the WebSocket send method was called twice - once for each attempt
+    assert_that(mock_websocket.send.call_count, equal_to(2))
+
+    # verify that the correct message was sent each time
+    mock_websocket.send.assert_has_awaits(
+        [call(f'{{"type":"subscribe","symbol":"{symbol}"}}')] * 2
+    )
