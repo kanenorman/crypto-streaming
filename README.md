@@ -1,5 +1,6 @@
 # Real-Time Cryptocurrency Price Data Pipeline
 [![Unit Tests](https://github.com/kanenorman/crypto-streaming/actions/workflows/unit-test.yaml/badge.svg)](https://github.com/kanenorman/crypto-streaming/actions/workflows/unit-test.yaml)
+[![codecov](https://codecov.io/gh/kanenorman/crypto-streaming/graph/badge.svg?token=BZYYA8YX2W)](https://codecov.io/gh/kanenorman/crypto-streaming)
 
 ## Overview
 
