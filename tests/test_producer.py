@@ -102,7 +102,7 @@ async def test_on_message(message_type, expected_call_count, mock_logger):
     with patch("kafka.producer._send_record_to_kafka", mock_send_record):
         await service._on_message(message, mock_producer)
 
-    mock_logger.info.assert_called_with("Received message: %s", message)
+    mock_logger.info.assert_called_with(f"Received message: {message}")
     assert_that(mock_send_record.call_count, equal_to(expected_call_count))
 
 
