@@ -77,7 +77,7 @@ async def _on_message(message: str, producer: Producer) -> None:
     -------
     None
     """
-    logger.info("Received message: %s", message)
+    logger.info(f"Received message: {message}")
     data = json.loads(message)
 
     if data.get("type") == "trade":
