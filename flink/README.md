@@ -14,7 +14,7 @@ The `SOURCE_CRYPTO_PRICES` table represents the raw cryptocurrency price data ob
 - `p`: Last price (decimal with 18, 2 precision).
 - `s`: Symbol. (Provided in format exchange:trading_pair)
 - `t`: UNIX milliseconds timestamp (ms since 1970-01-01 00:00:00.000 UTC).
-- `at_time`: Local timestamp with millisecond precision derived from `t`.
+- `event_time`: Local timestamp with millisecond precision derived from `t`.
 - `v`: Volume.
 - `WATERMARK`: Watermark for time-based processing.
 
@@ -29,7 +29,7 @@ The `TRANSFORMED_CRYPTO_PRICES` view is created by transforming the raw data fro
 - `price`: Last price.
 - `exchange`: Trading exchange (e.g., Binance).
 - `trading_pair`: Trading pair (e.g., BTCUSD).
-- `at_time`: Local timestamp with millisecond precision.
+- `event_time`: Local timestamp with millisecond precision.
 - `volume`: Volume.
 
 ## MySQL Sink Tables
@@ -41,20 +41,23 @@ The `CRYPTO_PRICES_HISTORY_SINK` table stores historical cryptocurrency price da
 - `price`: Last price (decimal with 18, 2 precision).
 - `exchange`: Trading exchange (VARCHAR).
 - `trading_pair`: Trading pair (VARCHAR).
-- `at_time`: Timestamp with milliseconds (TIMESTAMP(6)).
+- `event_time`: Timestamp with milliseconds (TIMESTAMP(6)).
 - `volume`: Volume (DOUBLE PRECISION).
-
-This table has a primary key defined on `(exchange, trading_pair, at_time)` but is not enforced.
 
 ### `CRYPTO_PRICES_AVERAGE_SINK`
 
 The `CRYPTO_PRICES_AVERAGE_SINK` table stores the average cryptocurrency prices over a specified time interval.
 
+- `price`: Last price (decimal with 18, 2 precision).
 - `exchange`: Trading exchange (VARCHAR).
 - `trading_pair`: Trading pair (VARCHAR).
-- `average_price`: Average price (decimal with 18, 2 precision).
+- `trading_window_start`: Start of trading interval
+- `trading_window_end`: End of trading interval
+- `average_price`: Average price between `trading_window_start` and `trading_window_end`
+- `total_volume`: Total volume traded between `trading_window_start` and `trading_window_end` (DOUBLE PRECISION).
 
-This table has a primary key defined on `(exchange, trading_pair)` but is not enforced.
+
+This table has a primary key defined on `(exchange, trading_pair, trading_window_start, trading_window_end)` but is not enforced.
 
 ## Inserting Transformed Data into MySQL Sink Tables
 
