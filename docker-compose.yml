@@ -214,21 +214,5 @@ services:
       retries: 5
     networks:
       - network
-  flask:
-    restart: always
-    container_name: flask
-    networks:
-      - network
-    build:
-      context: .
-      dockerfile: ./flask/Dockerfile
-    ports:
-      - "5000:5000"
-    environment:
-      - DEV_MYSQL_URI=mysql+pymysql://user:password@mysql:3306/crypto
-      - PYTHONUNBUFFERED=1
-    depends_on:
-        mysql:
-          condition: service_healthy
 networks:
   network:

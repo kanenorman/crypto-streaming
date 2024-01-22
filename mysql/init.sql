@@ -18,9 +18,14 @@
 ************************************************************/
 
 /************************************************************
+|                       USER CREATION                       |
+************************************************************/
+CREATE USER 'user'@'%' IDENTIFIED BY 'password';
+
+/************************************************************
 |                       PRIVILEGES                          |
 ************************************************************/
-GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'%';
 
 /************************************************************
 |                     DATABASE CREATION                     |
@@ -33,18 +38,20 @@ CREATE DATABASE IF NOT EXISTS crypto;
 
 CREATE TABLE IF NOT EXISTS crypto.price_history
 (
-    price DECIMAL(18, 2),
-    exchange VARCHAR(255),
-    trading_pair VARCHAR(255),
-    at_time TIMESTAMP,
-    volume DOUBLE,
-    PRIMARY KEY (exchange, trading_pair, at_time)
+    price           DECIMAL(18, 2),
+    exchange        VARCHAR(255),
+    trading_pair    VARCHAR(255),
+    volume          DOUBLE,
+    event_time      TIMESTAMP(3),
+    ingestion_time  TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
 );
 
 CREATE TABLE IF NOT EXISTS crypto.average_price
 (
-    exchange VARCHAR(255),
-    trading_pair VARCHAR(255),
-    average_price DOUBLE,
-    PRIMARY KEY (exchange, trading_pair)
+    exchange              VARCHAR(255),
+    trading_pair          VARCHAR(255),
+    trading_window_start  TIMESTAMP(3),
+    trading_window_end    TIMESTAMP(3),
+    average_price         DOUBLE,
+    PRIMARY KEY(exchange, trading_pair, trading_window_start, trading_window_end)
 );
