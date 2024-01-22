@@ -53,5 +53,6 @@ CREATE TABLE IF NOT EXISTS crypto.average_price
     trading_window_start  TIMESTAMP(3),
     trading_window_end    TIMESTAMP(3),
     average_price         DOUBLE,
+    total_volume          DOUBLE,
     PRIMARY KEY(exchange, trading_pair, trading_window_start, trading_window_end)
 );
