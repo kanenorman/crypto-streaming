@@ -4,15 +4,15 @@
 
 ## Overview
 
-This project implements a real-time data pipeline for processing cryptocurrency price data. It uses a suite of technologies including Docker, Finnhub WebSockets, Kafka, Flink, and MySQL.
+This repository implements a real-time data pipeline for processing cryptocurrency price data. It uses a suite of technologies including Docker, WebSockets, Apache Kafka, Apache Flink, and MySQL.
 
 ## Architecture
 
 The pipeline is designed as follows:
 
-- **Finnhub WebSockets**: Streams real-time cryptocurrency price data.
-- **Kafka**: Acts as a messaging system that decouples the data ingestion from processing.
-- **Flink**: Processes the streaming data and applies transformations.
+- **WebSockets**: Streams real-time cryptocurrency price data.
+- **Apache Kafka**: Acts as a messaging system that decouples the data ingestion from processing.
+- **Apache Flink**: Processes the streaming data and applies transformations.
 - **MySQL**: Stores the processed data for further analysis or querying.
 
 ![System-Design](./assets/system-design.png)
@@ -46,7 +46,7 @@ This SQL script is designed to set up the initial database schema in MySQL. It d
    ```
 2. Ensure Docker is running
    ```
-   $ sudo systemctl start docker
+   sudo systemctl start docker
    ```
 3. Create a `.env` file
    ```
