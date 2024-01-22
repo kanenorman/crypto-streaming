@@ -59,10 +59,17 @@ This SQL script is designed to set up the initial database schema in MySQL. It d
    docker compose build && docker compose up -d
    ```
 
+## Demonstration
+
+The `crypto.price_history` function logs individual trades, providing precise information on the price, volume, and exact timing of each trade. On the far right, we display the latency to demonstrate the real-time nature of our stream.
+![Price-History](./assets/price-history.png)
+
+
+The `crypto.average_price` function consolidates trade data into predefined intervals, presenting the average price and total trading volume within those specified time windows. This feature proves valuable in gaining insights into market trends over these intervals.
+![Average-Price](./assets/average-price.png)
+
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## Authors
-
-- Kane Norman
