@@ -10,12 +10,12 @@ CREATE TABLE SOURCE_CRYPTO_PRICES (
   v                  DOUBLE,                                       -- Volume
   WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND     -- Watermark
 ) WITH (
-  'connector' = 'kafka',
-  'topic' = 'crypto-prices',
-  'scan.startup.mode' = 'earliest-offset',
+  'connector'                    = 'kafka',
+  'topic'                        = 'crypto-prices',
+  'scan.startup.mode'            = 'earliest-offset',
   'properties.bootstrap.servers' = 'broker1:9092,broker2:19092,broker3:29092',
-  'properties.group.id' = 'crypto-price-consumer',
-  'format' = 'json'
+  'properties.group.id'          = 'crypto-price-consumer',
+  'format'                       = 'json'
 );
 
 /*****************************************************
@@ -40,11 +40,11 @@ CREATE TABLE CRYPTO_PRICES_HISTORY_SINK (
     volume          DOUBLE PRECISION,
     event_time      TIMESTAMP(3)
 ) WITH (
-    'connector' = 'jdbc',
-    'url' = 'jdbc:mysql://mysql:3306/crypto',
+    'connector'  = 'jdbc',
+    'url'        = 'jdbc:mysql://mysql:3306/crypto',
     'table-name' = 'price_history',
-    'username' = 'user',
-    'password' = 'password'
+    'username'   = 'user',
+    'password'   = 'password'
 );
 
 CREATE TABLE CRYPTO_PRICES_AVERAGE_SINK (
@@ -56,11 +56,11 @@ CREATE TABLE CRYPTO_PRICES_AVERAGE_SINK (
     total_volume           DECIMAL(18, 2),
     PRIMARY KEY(exchange, trading_pair, trading_window_start, trading_window_end) NOT ENFORCED
 ) WITH (
-    'connector' = 'jdbc',
-    'url' = 'jdbc:mysql://mysql:3306/crypto',
+    'connector'  = 'jdbc',
+    'url'        = 'jdbc:mysql://mysql:3306/crypto',
     'table-name' = 'average_price',
-    'username' = 'user',
-    'password' = 'password'
+    'username'   = 'user',
+    'password'   = 'password'
 );
 
 /*****************************************************
