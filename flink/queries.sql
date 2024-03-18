@@ -23,11 +23,11 @@ CREATE TABLE SOURCE_CRYPTO_PRICES (
 *****************************************************/
 CREATE VIEW TRANSFORMED_CRYPTO_PRICES  AS
 SELECT
-  p AS price,                                -- Last price       
+  p                      AS price,           -- Last price       
   SPLIT_INDEX(s, ':', 0) AS exchange,        -- Trading exchange (e.g. Coinbase)
   SPLIT_INDEX(s, ':', 1) AS trading_pair,    -- Trading pair     (e.g. BTCUSD)
-  event_time,                                -- Trade execution timestamp with millisecond precision
-  v AS volume                                -- Volume
+  event_time             AS event_time,      -- Trade execution timestamp with millisecond precision
+  v                      AS volume           -- Volume
 FROM SOURCE_CRYPTO_PRICES;
 
 /*****************************************************
